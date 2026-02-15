@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#000000">
+    <meta name="description" content="Smart Assistant - Ein KI-gestützter persönlicher Assistent">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Assistent">
+    <title>Clawdim - Smart Assistant</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" sizes="192x192" href="icons/icon-192.svg">
+    <link rel="apple-touch-icon" href="icons/icon-192.svg">
+    <link rel="stylesheet" href="src/css/main.css">
+    <link rel="stylesheet" href="src/css/eyes.css">
+    <link rel="stylesheet" href="src/css/menu.css">
+    <link rel="stylesheet" href="src/css/settings.css">
+</head>
+<body>
+    <main id="app">
+        <div id="eyes-container">
+            <div class="eye" id="left-eye">
+                <div class="eye-glow"></div>
+                <div class="eye-white">
+                    <div class="pupil">
+                        <div class="pupil-inner"></div>
+                        <div class="pupil-reflection"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="eye" id="right-eye">
+                <div class="eye-glow"></div>
+                <div class="eye-white">
+                    <div class="pupil">
+                        <div class="pupil-inner"></div>
+                        <div class="pupil-reflection"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="status-indicator">
+            <span id="status-text">Bereit</span>
+        </div>
+
+        <div id="listening-indicator" class="hidden">
+            <div class="listening-wave">
+                <span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <span id="listening-text">Höre zu...</span>
+        </div>
+
+        <div id="chat-container" class="hidden">
+            <div id="chat-messages"></div>
+            <div id="chat-input-container">
+                <input type="text" id="chat-input" placeholder="Schreibe eine Nachricht...">
+                <button id="chat-send">Senden</button>
+            </div>
+        </div>
+    </main>
+
+    <nav id="side-menu" class="closed">
+        <div id="menu-content">
+            <h2>Menü</h2>
+            <ul id="menu-items">
+                <li><button id="btn-settings">Einstellungen</button></li>
+                <li><button id="btn-chat">Chat öffnen</button></li>
+                <li><button id="btn-clear-history">Verlauf löschen</button></li>
+            </ul>
+            <div id="menu-footer">
+                <small>v1.0.0</small>
+            </div>
+        </div>
+    </nav>
+
+    <div id="settings-overlay" class="hidden">
+        <div id="settings-panel">
+            <header id="settings-header">
+                <h1>Einstellungen</h1>
+                <button id="settings-close">&times;</button>
+            </header>
+            
+            <div id="settings-content">
+                <section class="settings-section">
+                    <h3>Allgemein</h3>
+                    
+                    <div class="setting-item">
+                        <label for="trigger-word">Trigger Word</label>
+                        <input type="text" id="trigger-word" value="HeyAssistent">
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label for="wake-word-enabled">Wake Word aktivieren</label>
+                        <input type="checkbox" id="wake-word-enabled" checked>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label for="auto-speak">Automatisch sprechen</label>
+                        <input type="checkbox" id="auto-speak" checked>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label for="language">Sprache</label>
+                        <select id="language">
+                            <option value="de-DE">Deutsch (Deutschland)</option>
+                            <option value="de-AT">Deutsch (Österreich)</option>
+                            <option value="de-CH">Deutsch (Schweiz)</option>
+                            <option value="en-US">English (US)</option>
+                        </select>
+                    </div>
+                </section>
+
+                <section class="settings-section">
+                    <h3>KI-Provider</h3>
+                    
+                    <div class="setting-item">
+                        <label for="provider-select">Anbieter</label>
+                        <select id="provider-select">
+                            <option value="cerebras">Cerebras (Empfohlen)</option>
+                            <option value="nvidia">NVIDIA NIM</option>
+                        </select>
+                    </div>
+
+                    <div id="cerebras-settings" class="provider-settings">
+                        <div class="setting-item">
+                            <label for="cerebras-api-key">Cerebras API Key</label>
+                            <input type="password" id="cerebras-api-key" placeholder="API Key eingeben...">
+                        </div>
+                        <div class="setting-item">
+                            <label for="cerebras-model">Modell</label>
+                            <select id="cerebras-model">
+                                <option value="llama-3.3-70b">Llama 3.3 70B</option>
+                                <option value="llama-4-scout">Llama 4 Scout</option>
+                                <option value="glm-4.7" selected>GLM-4.7 (Empfohlen)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="nvidia-settings" class="provider-settings hidden">
+                        <div class="setting-item">
+                            <label for="nvidia-api-key">NVIDIA API Key</label>
+                            <input type="password" id="nvidia-api-key" placeholder="API Key eingeben...">
+                        </div>
+                        <div class="setting-item">
+                            <label for="nvidia-model">Modell</label>
+                            <select id="nvidia-model">
+                                <option value="meta/llama-3.3-70b-instruct">Llama 3.3 70B</option>
+                                <option value="meta/llama-nemotron-ultra-4b-instruct">Nemotron Ultra</option>
+                                <option value="mistralai/mistral-large-3-instruct">Mistral Large 3</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="settings-section">
+                    <h3>Persönlichkeit</h3>
+                    
+                    <div class="setting-item full-width">
+                        <label for="user-info">Über mich</label>
+                        <textarea id="user-info" placeholder="Erzähle dem Assistenten etwas über dich..." rows="3"></textarea>
+                    </div>
+                    
+                    <div class="setting-item full-width">
+                        <label for="custom-instructions">Benutzerdefinierte Anweisungen</label>
+                        <textarea id="custom-instructions" placeholder="Wie soll der Assistent antworten?" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="setting-item full-width">
+                        <label for="system-prompt">System Prompt (Erweitert)</label>
+                        <textarea id="system-prompt" placeholder="Leer lassen für Standard-Prompt..." rows="4"></textarea>
+                    </div>
+                </section>
+
+                <section class="settings-section">
+                    <h3>Sprachausgabe (TTS)</h3>
+                    
+                    <div class="setting-item">
+                        <label for="tts-rate">Geschwindigkeit</label>
+                        <input type="range" id="tts-rate" min="0.5" max="2" step="0.1" value="1">
+                        <span id="tts-rate-value">1.0</span>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label for="tts-pitch">Tonhöhe</label>
+                        <input type="range" id="tts-pitch" min="0.5" max="2" step="0.1" value="1">
+                        <span id="tts-pitch-value">1.0</span>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label for="tts-voice">Stimme</label>
+                        <select id="tts-voice">
+                            <option value="auto">Automatisch</option>
+                        </select>
+                    </div>
+                </section>
+            </div>
+            
+            <footer id="settings-footer">
+                <button id="settings-save" class="primary-btn">Speichern</button>
+            </footer>
+        </div>
+    </div>
+
+    <script src="src/utils/helpers.js"></script>
+    <script src="src/utils/storage.js"></script>
+    <script src="src/utils/config.js"></script>
+    <script src="src/services/cerebras.js"></script>
+    <script src="src/services/nvidia.js"></script>
+    <script src="src/services/api.js"></script>
+    <script src="src/services/tts.js"></script>
+    <script src="src/services/stt.js"></script>
+    <script src="src/js/eyes.js"></script>
+    <script src="src/js/menu.js"></script>
+    <script src="src/js/chat.js"></script>
+    <script src="src/js/settings.js"></script>
+    <script src="src/js/app.js"></script>
+    
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('Service Worker registered', reg))
+                .catch(err => console.error('Service Worker registration failed', err));
+        }
+    </script>
+</body>
+</html>
